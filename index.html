@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>☕ 바이브 카페</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <!-- ===== 페이지 상단 헤더 ===== -->
+  <header>
+    <div id="cafe-logo">☕</div>
+    <h1>바이브 카페</h1>
+    <p id="cafe-subtitle">당신의 하루에 바이브를 더하다</p>
+  </header>
+
+
+  <!-- ===== 탭 네비게이션 =====
+       카페 이름 아래에 위치하는 탭 버튼 2개입니다
+       클릭하면 switchTab() 함수가 실행되어 화면이 전환됩니다 -->
+  <nav class="tab-nav">
+
+    <!-- 주문하기 탭: 처음에는 이 탭이 선택(active)된 상태입니다 -->
+    <button class="tab-btn active" id="tab-btn-order" onclick="switchTab('order')">
+      ☕ 주문하기
+    </button>
+
+    <!-- 주문 내역 탭: 옆에 주문 건수 배지가 표시됩니다 -->
+    <button class="tab-btn" id="tab-btn-history" onclick="switchTab('history')">
+      📋 주문 내역
+      <!-- 배지: 주문 건수를 작은 원형으로 표시합니다 -->
+      <!-- JavaScript가 이 숫자를 실시간으로 업데이트합니다 -->
+      <!-- hidden 클래스: 주문이 0건이면 배지를 숨깁니다 -->
+      <span class="badge hidden" id="order-badge">0</span>
+    </button>
+
+  </nav>
+
+
+  <!-- ===== 메인 콘텐츠 영역 ===== -->
+  <main>
+
+    <!-- ============================================
+         [탭 1] 주문하기 패널
+         기존 주문서 폼과 주문 확인 메시지가 여기에 들어갑니다
+         처음에는 이 패널이 보입니다
+    ============================================ -->
+    <div id="tab-order">
+
+      <!-- 주문서 폼 (기존 구조 그대로 유지) -->
+      <!-- novalidate: 브라우저 기본 검사를 끄고 JavaScript로 직접 처리합니다 -->
+      <form id="order-form" novalidate>
+
+
+        <!-- 1. 이름 (필수) -->
+        <div class="form-group">
+          <label for="name">이름 <span class="required">*</span></label>
+          <input type="text" id="name" name="name" placeholder="이름을 입력해주세요">
+          <span class="error-msg" id="name-error"></span>
+        </div>
+
+
+        <!-- 2. 전화번호 -->
+        <div class="form-group">
+          <label for="phone">전화번호</label>
+          <input type="tel" id="phone" name="phone" placeholder="010-0000-0000">
+        </div>
+
+
+        <!-- 3. 음료 선택 (드롭다운) -->
+        <div class="form-group">
+          <label for="drink">음료 선택</label>
+          <select id="drink" name="drink">
+            <option value="" data-price="0">-- 음료를 선택하세요 --</option>
+            <option value="americano"     data-price="3500">아메리카노 3,500원</option>
+            <option value="cafelatte"     data-price="4000">카페라떼 4,000원</option>
+            <option value="cafemocha"     data-price="4500">카페모카 4,500원</option>
+            <option value="vanillalatte"  data-price="4500">바닐라라떼 4,500원</option>
+            <option value="greentealatte" data-price="4500">녹차라떼 4,500원</option>
+          </select>
+        </div>
+
+
+        <!-- 4. 사이즈 (라디오) -->
+        <div class="form-group">
+          <fieldset>
+            <legend>사이즈</legend>
+            <div class="radio-group">
+              <input type="radio" id="size-s" name="size" value="S" data-price="0">
+              <label for="size-s">S &nbsp;+0원</label>
+
+              <input type="radio" id="size-m" name="size" value="M" data-price="500" checked>
+              <label for="size-m">M &nbsp;+500원</label>
+
+              <input type="radio" id="size-l" name="size" value="L" data-price="1000">
+              <label for="size-l">L &nbsp;+1,000원</label>
+            </div>
+          </fieldset>
+        </div>
+
+
+        <!-- 5. 추가 옵션 (체크박스) -->
+        <div class="form-group">
+          <fieldset>
+            <legend>추가 옵션</legend>
+            <div class="checkbox-group">
+              <input type="checkbox" id="opt-shot"  name="options" value="shot"  data-price="500">
+              <label for="opt-shot">샷 추가 &nbsp;+500원</label>
+
+              <input type="checkbox" id="opt-cream" name="options" value="cream" data-price="500">
+              <label for="opt-cream">크림 추가 &nbsp;+500원</label>
+
+              <input type="checkbox" id="opt-syrup" name="options" value="syrup" data-price="300">
+              <label for="opt-syrup">시럽 추가 &nbsp;+300원</label>
+
+              <input type="checkbox" id="opt-decaf" name="options" value="decaf" data-price="0">
+              <label for="opt-decaf">디카페인 &nbsp;+0원</label>
+            </div>
+          </fieldset>
+        </div>
+
+
+        <!-- 6. 수량 -->
+        <div class="form-group">
+          <label for="quantity">수량</label>
+          <input type="number" id="quantity" name="quantity" min="1" max="10" value="1">
+        </div>
+
+
+        <!-- 7. 요청사항 -->
+        <div class="form-group">
+          <label for="request">요청사항</label>
+          <textarea id="request" name="request" rows="4"
+            placeholder="요청사항을 입력해주세요 (예: 얼음 많이, 뜨겁게 해주세요)"></textarea>
+        </div>
+
+
+        <!-- 8. 예상 금액 표시 -->
+        <div id="price-display">
+          예상 금액: <span id="estimated-price">0원</span>
+        </div>
+
+
+        <!-- 9. 주문하기 버튼 -->
+        <button type="submit" id="btn-submit">주문하기</button>
+
+        <!-- 10. 다시 작성 버튼 -->
+        <button type="button" id="btn-reset">다시 작성</button>
+
+
+      </form>
+      <!-- 주문서 폼 끝 -->
+
+
+      <!-- 11. 주문 확인 메시지 영역 (처음에는 숨겨져 있습니다) -->
+      <div id="order-confirm" hidden></div>
+
+
+    </div>
+    <!-- tab-order 패널 끝 -->
+
+
+    <!-- ============================================
+         [탭 2] 주문 내역 패널
+         주문이 접수될 때마다 카드 형태로 목록이 쌓입니다
+         처음에는 hidden 클래스로 숨겨져 있습니다
+    ============================================ -->
+    <div id="tab-history" class="hidden">
+
+      <!-- 주문 카드 목록이 여기에 렌더링됩니다 (JavaScript가 채웁니다) -->
+      <div id="orders-list"></div>
+
+      <!-- 요약 영역: 총 주문 금액 + 내역 모두 지우기 버튼 -->
+      <!-- 주문이 1건 이상일 때만 보입니다 -->
+      <div id="orders-summary" class="hidden">
+        <p id="orders-total-text"></p>
+        <!-- id="orders-total-text": JavaScript가 "총 주문 금액: 15,000원 (3건)" 형태로 채웁니다 -->
+        <button type="button" id="btn-clear-all">🗑 내역 모두 지우기</button>
+      </div>
+
+    </div>
+    <!-- tab-history 패널 끝 -->
+
+  </main>
+
+
+  <!-- Supabase 클라이언트 라이브러리 (v2) -->
+  <!-- script.js보다 반드시 먼저 불러와야 합니다 -->
+  <!-- supabase 객체가 먼저 준비돼 있어야 script.js에서 사용할 수 있기 때문입니다 -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <script src="script.js"></script>
+
+</body>
+</html>
